@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lumber Tycoon">
+<title>🌲 Lumber Tycoon</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;font-family:'Nunito',sans-serif;background:#111;overflow:hidden;-webkit-text-size-adjust:100%}
+#app{width:100%;height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;background:#FFFDF5;overflow:hidden}
+#hdr{background:linear-gradient(135deg,#2D5A1B,#1A3A0F);padding:10px 12px 8px;padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#hdr-t{font-family:'Fredoka One',cursive;font-size:19px;color:#F5C842}
+.hs{display:flex;flex-direction:column;align-items:flex-end}
+.hs-l{font-size:9px;color:#8BC34A;font-weight:700;text-transform:uppercase}
+.hs-v{font-size:14px;font-weight:800;color:#fff;line-height:1}
+#hdr-s{display:flex;gap:10px}
+#offb{display:none;background:linear-gradient(90deg,#F5A623,#F76B1C);color:#fff;font-size:12px;font-weight:700;padding:6px 14px;text-align:center;flex-shrink:0}
+#world{position:relative;width:100%;flex-shrink:0;background:#87CEEB;overflow:hidden}
+#world-svg{display:block;width:100%;touch-action:manipulation}
+#psbar{background:#1A3A0F;padding:3px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#pst{font-size:10px;color:#8BC34A;font-weight:700}
+#psv{font-size:12px;font-weight:800;color:#F5C842}
+#logbar{background:#1A3A0F;color:#8BC34A;font-size:11px;font-weight:700;padding:4px 12px;min-height:22px;flex-shrink:0;text-align:center}
+#tabs{display:flex;background:#F0EAD8;border-bottom:2px solid #D4C5A0;flex-shrink:0}
+.tab{flex:1;padding:7px 2px;font-size:10px;font-weight:800;color:#7A6A40;text-align:center;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;text-transform:uppercase}
+.tab.on{color:#2D5A1B;border-bottom:3px solid #4CAF50;background:#fff}
+.nb{display:inline-block;background:#F44336;color:#fff;font-size:9px;border-radius:50%;width:14px;height:14px;line-height:14px;text-align:center;margin-left:2px;vertical-align:top}
+#panels{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;background:#FFFDF5;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+.panel{display:none;flex-direction:column;gap:8px}
+.panel.on{display:flex}
+.stitle{font-size:10px;font-weight:800;color:#7A6A40;text-transform:uppercase;letter-spacing:1px;padding:4px 0 2px}
+.srow{background:#fff;border:1.5px solid #D4C5A0;border-radius:16px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.si{flex:1}.sn{font-size:14px;font-weight:800;color:#3A2A10}.sd{font-size:11px;color:#7A6A40;margin-top:1px}
+.btn{border:none;border-radius:10px;padding:9px 13px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.2);-webkit-appearance:none;touch-action:manipulation}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.btn:disabled{opacity:.35}
+.bg{background:linear-gradient(180deg,#5DBB3F,#3A8A22)}
+.bb{background:linear-gradient(180deg,#42A5F5,#1565C0)}
+.bgo{background:linear-gradient(180deg,#FFB300,#F57F17)}
+.bp{background:linear-gradient(180deg,#AB47BC,#6A1B9A)}
+.bsell{width:100%;padding:12px;font-size:15px;border-radius:14px}
+.urow{background:#fff;border:1.5px solid #D4C5A0;border-radius:16px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.urow.done{opacity:.45}
+.qrow{background:#fff;border:1.5px solid #D4C5A0;border-radius:16px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
+.qrow.qdone{background:#F0FFF0;border-color:#81C784}
+.qpbar{width:100%;height:4px;background:#E0D8C0;border-radius:3px;margin-top:5px;overflow:hidden}
+.qpfill{height:100%;background:linear-gradient(90deg,#4CAF50,#8BC34A);border-radius:3px;transition:width .3s}
+.ehdr{background:linear-gradient(135deg,#1A3A0F,#2D5A1B);border-radius:16px;padding:14px;text-align:center;color:#fff}
+.epct{font-family:'Fredoka One',cursive;font-size:34px;color:#F5C842}
+.epbar{width:100%;height:10px;background:rgba(255,255,255,.2);border-radius:5px;margin:6px 0 4px;overflow:hidden}
+.epfill{height:100%;background:linear-gradient(90deg,#F5C842,#F5A623);border-radius:5px;transition:width .5s}
+.pcard{background:linear-gradient(135deg,#3A1A6A,#1A0A40);border-radius:16px;padding:14px;text-align:center;color:#fff}
+.ptitle{font-family:'Fredoka One',cursive;font-size:20px;color:#F5C842;margin-bottom:4px}
+.lbrow{background:#fff;border:1.5px solid #D4C5A0;border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.lbinp{display:flex;gap:8px;align-items:center}
+.lbinput{flex:1;border:1.5px solid #D4C5A0;border-radius:10px;padding:9px 12px;font-size:14px;font-family:'Nunito',sans-serif;font-weight:700;color:#3A2A10;background:#fff;-webkit-appearance:none}
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#2D5A1B;color:#fff;font-size:13px;font-weight:800;padding:10px 20px;border-radius:50px;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;max-width:92%;text-align:center}
+#toast.show{opacity:1}
+.tree-group{cursor:pointer}
+.tree-group:active .tree-crown{transform:scale(0.88);transform-origin:center bottom}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="hdr">
+  <div id="hdr-t">🌲 Lumber Tycoon</div>
+  <div id="hdr-s">
+    <div class="hs"><div class="hs-l">Argent</div><div class="hs-v" id="hm">0€</div></div>
+    <div class="hs"><div class="hs-l">Bois</div><div class="hs-v" id="hw">0</div></div>
+    <div class="hs"><div class="hs-l">⭐</div><div class="hs-v" id="hpr">0</div></div>
+  </div>
+</div>
+<div id="offb"></div>
+<div id="world">
+  <!-- SVG world — trees drawn directly in markup, always visible -->
+  <svg id="world-svg" viewBox="0 0 400 160" xmlns="http://www.w3.org/2000/svg">
+    <!-- Sky -->
+    <rect width="400" height="160" fill="#87CEEB"/>
+    <rect y="90" width="400" height="30" fill="#5DBB3F"/>
+    <rect y="118" width="400" height="42" fill="#8B6347"/>
+    <!-- Clouds -->
+    <ellipse cx="60" cy="22" rx="30" ry="12" fill="white" opacity=".85"/>
+    <ellipse cx="85" cy="18" rx="20" ry="10" fill="white" opacity=".85"/>
+    <ellipse cx="200" cy="28" rx="36" ry="14" fill="white" opacity=".8"/>
+    <ellipse cx="310" cy="20" rx="28" ry="11" fill="white" opacity=".75"/>
+    <!-- Lumberjack -->
+    <text id="lj-svg" x="20" y="108" font-size="22" style="transition:x .6s">🧑‍🌾</text>
+    <!-- Trees — each is a group with onclick -->
+    <g id="tree0">
+      <rect id="trunk0" x="46" y="90" width="8" height="14" fill="#8B6347"/>
+      <polygon id="crown0" points="50,40 30,90 70,90" fill="#2E8B22"/>
+      <polygon points="50,52 33,93 67,93" fill="#3A9E2A"/>
+      <rect id="hp0" x="34" y="96" width="32" height="4" rx="2" fill="#F5A623"/>
+      <rect x="34" y="96" width="32" height="4" rx="2" fill="none" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    </g>
+    <g id="tree1">
+      <rect id="trunk1" x="116" y="90" width="8" height="14" fill="#8B6347"/>
+      <polygon id="crown1" points="120,40 100,90 140,90" fill="#2E8B22"/>
+      <polygon points="120,52 103,93 137,93" fill="#3A9E2A"/>
+      <rect id="hp1" x="104" y="96" width="32" height="4" rx="2" fill="#F5A623"/>
+      <rect x="104" y="96" width="32" height="4" rx="2" fill="none" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    </g>
+    <!-- Placeholder groups for extra trees (hidden until bought) -->
+    <g id="tree2" visibility="hidden">
+      <rect id="trunk2" x="186" y="90" width="8" height="14" fill="#8B6347"/>
+      <polygon id="crown2" points="190,40 170,90 210,90" fill="#2E8B22"/>
+      <polygon points="190,52 173,93 207,93" fill="#3A9E2A"/>
+      <rect id="hp2" x="174" y="96" width="32" height="4" rx="2" fill="#F5A623"/>
+      <rect x="174" y="96" width="32" height="4" rx="2" fill="none" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    </g>
+    <g id="tree3" visibility="hidden">
+      <rect id="trunk3" x="256" y="90" width="8" height="14" fill="#8B6347"/>
+      <polygon id="crown3" points="260,40 240,90 280,90" fill="#2E8B22"/>
+      <polygon points="260,52 243,93 277,93" fill="#3A9E2A"/>
+      <rect id="hp3" x="244" y="96" width="32" height="4" rx="2" fill="#F5A623"/>
+      <rect x="244" y="96" width="32" height="4" rx="2" fill="none" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    </g>
+    <g id="tree4" visibility="hidden">
+      <rect id="trunk4" x="326" y="90" width="8" height="14" fill="#8B6347"/>
+      <polygon id="crown4" points="330,40 310,90 350,90" fill="#2E8B22"/>
+      <polygon points="330,52 313,93 347,93" fill="#3A9E2A"/>
+      <rect id="hp4" x="314" y="96" width="32" height="4" rx="2" fill="#F5A623"/>
+      <rect x="314" y="96" width="32" height="4" rx="2" fill="none" stroke="rgba(0,0,0,.2)" stroke-width=".5"/>
+    </g>
+    <!-- Float texts layer -->
+    <g id="floats"></g>
+    <!-- Tap zones — large invisible rects on top, guaranteed tappable on iOS -->
+    <rect id="tap0" x="26" y="36" width="48" height="70" fill="transparent" onclick="tapTree(0)"/>
+    <rect id="tap1" x="96" y="36" width="48" height="70" fill="transparent" onclick="tapTree(1)"/>
+    <rect id="tap2" x="166" y="36" width="48" height="70" fill="transparent" onclick="tapTree(2)" visibility="hidden"/>
+    <rect id="tap3" x="236" y="36" width="48" height="70" fill="transparent" onclick="tapTree(3)" visibility="hidden"/>
+    <rect id="tap4" x="306" y="36" width="48" height="70" fill="transparent" onclick="tapTree(4)" visibility="hidden"/>
+  </svg>
+</div>
+<div style="background:#1A3A0F;padding:6px 12px;display:flex;gap:8px;flex-shrink:0">
+  <button onclick="chopAll()" style="flex:1;background:linear-gradient(180deg,#5DBB3F,#2D6E1A);border:none;border-radius:12px;padding:11px;font-size:16px;font-weight:800;color:#fff;font-family:'Nunito',sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.3);-webkit-appearance:none;cursor:pointer">🪓 Couper</button>
+  <button onclick="sellWood()" style="flex:1;background:linear-gradient(180deg,#FFB300,#F57F17);border:none;border-radius:12px;padding:11px;font-size:16px;font-weight:800;color:#fff;font-family:'Nunito',sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.3);-webkit-appearance:none;cursor:pointer">💰 Vendre</button>
+</div>
+<div id="psbar"><div id="pst">💰 Revenu passif</div><div id="psv">0€/s</div></div>
+<div id="logbar">Appuie sur un arbre pour couper ! 🪓</div>
+<div id="tabs">
+  <div class="tab on" onclick="ST('shop')">🏪 Shop</div>
+  <div class="tab" onclick="ST('upgrades')">⚡ Amélios</div>
+  <div class="tab" onclick="ST('quests')" id="tab-q">📋 Quêtes</div>
+  <div class="tab" onclick="ST('empire')">🏰 Empire</div>
+  <div class="tab" onclick="ST('prestige')">⭐</div>
+</div>
+<div id="panels">
+
+<div class="panel on" id="panel-shop">
+  <div class="srow" style="flex-direction:column;align-items:stretch;gap:6px">
+    <div class="si"><div class="sn">Vendre le bois 🪵</div><div class="sd" id="selld">0 bûches × 1€</div></div>
+    <button class="btn bg bsell" onclick="sellWood()">Vendre tout</button>
+  </div>
+  <div class="stitle">Bâtiments</div>
+  <div class="srow"><div class="si"><div class="sn">🌲 Planter un arbre</div><div class="sd">+1 arbre cliquable</div></div><button class="btn bg" id="b-tree" onclick="buy('tree')">20€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🧑‍🌾 Bûcheron</div><div class="sd" id="d-lj">Coupe auto</div></div><button class="btn bb" id="b-lj" onclick="buy('lj')">50€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🏭 Scierie</div><div class="sd" id="d-mill">+1€/bûche</div></div><button class="btn bgo" id="b-mill" onclick="buy('mill')">200€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🚚 Camion</div><div class="sd">Vente auto/10s</div></div><button class="btn bb" id="b-truck" onclick="buy('truck')">500€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🏗️ Usine de meubles</div><div class="sd">Prix bois ×3</div></div><button class="btn bgo" id="b-factory" onclick="buy('factory')">2 000€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🌍 Export international</div><div class="sd">Prix bois ×5</div></div><button class="btn bp" id="b-export" onclick="buy('export')">10 000€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🚁 Hélicoptère</div><div class="sd">+3 bûcherons auto</div></div><button class="btn bp" id="b-heli" onclick="buy('heli')">50 000€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🌳 Forêt nationale</div><div class="sd">Débloque tous les arbres</div></div><button class="btn bg" id="b-forest" onclick="buy('forest')">100 000€</button></div>
+  <div class="srow"><div class="si"><div class="sn">🏦 Banque forestière</div><div class="sd">+1% argent/min</div></div><button class="btn bgo" id="b-bank" onclick="buy('bank')">500 000€</button></div>
+</div>
+
+<div class="panel" id="panel-upgrades">
+  <div class="urow" id="u-axe"><div style="font-size:22px">🪓</div><div style="flex:1"><div class="sn">Hache en acier</div><div class="sd">Coupe 2× plus vite</div></div><button class="btn bg" id="bu-axe" onclick="buyU('axe',150)">150€</button></div>
+  <div class="urow" id="u-axe2"><div style="font-size:22px">⚡</div><div style="flex:1"><div class="sn">Tronçonneuse</div><div class="sd">Coupe 4× plus vite</div></div><button class="btn bb" id="bu-axe2" onclick="buyU('axe2',800)">800€</button></div>
+  <div class="urow" id="u-axe3"><div style="font-size:22px">🤖</div><div style="flex:1"><div class="sn">Scie robotique</div><div class="sd">Coupe 8× plus vite</div></div><button class="btn bp" id="bu-axe3" onclick="buyU('axe3',8000)">8 000€</button></div>
+  <div class="urow" id="u-regen"><div style="font-size:22px">🌱</div><div style="flex:1"><div class="sn">Engrais magique</div><div class="sd">Arbres repoussent 2× plus vite</div></div><button class="btn bg" id="bu-regen" onclick="buyU('regen',300)">300€</button></div>
+  <div class="urow" id="u-regen2"><div style="font-size:22px">🧬</div><div style="flex:1"><div class="sn">Arbres OGM</div><div class="sd">Repoussent 4× plus vite</div></div><button class="btn bb" id="bu-regen2" onclick="buyU('regen2',1500)">1 500€</button></div>
+  <div class="urow" id="u-regen3"><div style="font-size:22px">🌿</div><div style="flex:1"><div class="sn">Forêt éternelle</div><div class="sd">Repoussent instantanément</div></div><button class="btn bp" id="bu-regen3" onclick="buyU('regen3',50000)">50 000€</button></div>
+  <div class="urow" id="u-bulk"><div style="font-size:22px">📦</div><div style="flex:1"><div class="sn">Vente en gros</div><div class="sd">+50% revenus de vente</div></div><button class="btn bgo" id="bu-bulk" onclick="buyU('bulk',600)">600€</button></div>
+  <div class="urow" id="u-bulk2"><div style="font-size:22px">🏷️</div><div style="flex:1"><div class="sn">Prix premium</div><div class="sd">+100% revenus</div></div><button class="btn bgo" id="bu-bulk2" onclick="buyU('bulk2',5000)">5 000€</button></div>
+  <div class="urow" id="u-offline"><div style="font-size:22px">💤</div><div style="flex:1"><div class="sn">Équipe de nuit</div><div class="sd">Gains hors-ligne ×2</div></div><button class="btn bp" id="bu-offline" onclick="buyU('offline',1000)">1 000€</button></div>
+  <div class="urow" id="u-offline2"><div style="font-size:22px">🌙</div><div style="flex:1"><div class="sn">Usine 24h/24</div><div class="sd">Gains hors-ligne ×4</div></div><button class="btn bp" id="bu-offline2" onclick="buyU('offline2',20000)">20 000€</button></div>
+  <div class="urow" id="u-golden"><div style="font-size:22px">🌟</div><div style="flex:1"><div class="sn">Arbre doré</div><div class="sd">5% chance ×10 bûches</div></div><button class="btn bgo" id="bu-golden" onclick="buyU('golden',5000)">5 000€</button></div>
+  <div class="urow" id="u-golden2"><div style="font-size:22px">💎</div><div style="flex:1"><div class="sn">Veine d'or</div><div class="sd">10% chance ×20 bûches</div></div><button class="btn bgo" id="bu-golden2" onclick="buyU('golden2',100000)">100 000€</button></div>
+  <div class="urow" id="u-multi"><div style="font-size:22px">👥</div><div style="flex:1"><div class="sn">Équipe double</div><div class="sd">Bûcherons 2× plus rapides</div></div><button class="btn bb" id="bu-multi" onclick="buyU('multi',10000)">10 000€</button></div>
+</div>
+
+<div class="panel" id="panel-quests">
+  <div class="stitle">Quêtes — complète les paliers !</div>
+  <div id="qlist"></div>
+</div>
+
+<div class="panel" id="panel-empire">
+  <div class="ehdr">
+    <div class="epct" id="epct">0%</div>
+    <div style="font-size:11px;color:#C5E1A5;margin-bottom:4px">Empire complété</div>
+    <div class="epbar"><div class="epfill" id="epfill" style="width:0%"></div></div>
+    <div style="font-size:11px;color:#8BC34A;font-weight:700" id="esub">0 / 9 bâtiments</div>
+  </div>
+  <div class="stitle">Construis tout → Grand Tycoon 🏆</div>
+  <div id="elist"></div>
+</div>
+
+<div class="panel" id="panel-prestige">
+  <div class="pcard">
+    <div style="font-size:34px;margin-bottom:4px">⭐</div>
+    <div class="ptitle">Prestige</div>
+    <div style="font-size:12px;color:#C5A8FF;line-height:1.5;margin-bottom:10px">Reparts de zéro avec <strong>+25%</strong> de revenus permanent par étoile.</div>
+    <div style="font-size:12px;color:#E0D0FF;margin-bottom:12px;font-weight:700">Total : <span id="te">0€</span> | ⭐<span id="pcnt">×0</span> | Bonus : <span id="pbon">+0%</span></div>
+    <button class="btn bgo" id="b-prestige" onclick="doPrestige()" style="font-size:14px;padding:11px 22px;border-radius:12px">⭐ Prestige (50 000€ min)</button>
+  </div>
+  <div class="stitle" style="margin-top:8px">🏆 Classement</div>
+  <div class="lbinp">
+    <input class="lbinput" id="lbname" placeholder="Ton pseudo..." maxlength="16">
+    <button class="btn bg" onclick="submitLB()">Entrer</button>
+  </div>
+  <div id="lblist"></div>
+</div>
+</div>
+<div id="toast"></div>
+</div>
+
+<script>
+// Tree X centers in SVG viewBox (0..400)
+const TXPOS=[50,120,190,260,330];
+const MAX_TREES=5;
+const BASE_HP=3,BASE_REGROW=7000;
+
+const QTIERS=[
+  {id:'ws',icon:'🪵',name:'Marchand de bois',stat:'woodSold',tiers:[{t:10,r:30,l:'Vendre 10 bûches'},{t:100,r:150,l:'100 bûches'},{t:500,r:500,l:'500 bûches'},{t:2000,r:2000,l:'2 000 bûches'},{t:10000,r:10000,l:'10 000 bûches'},{t:50000,r:50000,l:'50 000 bûches'},{t:250000,r:200000,l:'250 000 bûches'},{t:1000000,r:1000000,l:'1 million de bûches'}]},
+  {id:'earn',icon:'💰',name:'Fortune forestière',stat:'totalEarned',tiers:[{t:100,r:50,l:'Gagner 100€'},{t:1000,r:200,l:'1 000€'},{t:10000,r:1000,l:'10 000€'},{t:100000,r:5000,l:'100 000€'},{t:1000000,r:50000,l:'1M€'},{t:10000000,r:500000,l:'10M€'},{t:100000000,r:5000000,l:'100M€'},{t:1000000000,r:50000000,l:'1G€'}]},
+  {id:'fell',icon:'🌲',name:'Bûcheron légendaire',stat:'treesFelled',tiers:[{t:10,r:50,l:'10 arbres'},{t:100,r:200,l:'100 arbres'},{t:500,r:800,l:'500 arbres'},{t:2000,r:3000,l:'2 000 arbres'},{t:10000,r:15000,l:'10 000 arbres'},{t:50000,r:75000,l:'50 000 arbres'},{t:200000,r:300000,l:'200 000 arbres'},{t:1000000,r:2000000,l:'1 million'}]},
+  {id:'mills',icon:'🏭',name:'Industriel du bois',stat:'mills',tiers:[{t:1,r:200,l:'1ère scierie'},{t:3,r:600,l:'3 scieries'},{t:5,r:1500,l:'5 scieries'},{t:10,r:5000,l:'10 scieries'},{t:20,r:20000,l:'20 scieries'},{t:50,r:100000,l:'50 scieries'}]},
+  {id:'ljs',icon:'🧑‍🌾',name:'Chef de chantier',stat:'lumberjacks',tiers:[{t:2,r:100,l:'2 bûcherons'},{t:5,r:500,l:'5'},{t:10,r:2000,l:'10'},{t:25,r:10000,l:'25'},{t:50,r:50000,l:'50'},{t:100,r:200000,l:'100 bûcherons'}]},
+  {id:'pres',icon:'⭐',name:'Étoile montante',stat:'prestige',tiers:[{t:1,r:10000,l:'1er prestige'},{t:3,r:50000,l:'3 prestiges'},{t:5,r:200000,l:'5'},{t:10,r:1000000,l:'10'},{t:25,r:10000000,l:'25 prestiges'}]},
+  {id:'clicks',icon:'👆',name:'Clicker acharné',stat:'manualClicks',tiers:[{t:50,r:80,l:'50 clics'},{t:200,r:300,l:'200'},{t:1000,r:1500,l:'1 000'},{t:5000,r:8000,l:'5 000'},{t:25000,r:50000,l:'25 000'},{t:100000,r:250000,l:'100 000 clics'}]},
+  {id:'spent',icon:'🛒',name:'Grand investisseur',stat:'totalSpent',tiers:[{t:500,r:200,l:'500€ dépensés'},{t:5000,r:1500,l:'5 000€'},{t:50000,r:20000,l:'50 000€'},{t:500000,r:200000,l:'500 000€'},{t:5000000,r:2000000,l:'5M€'}]},
+  {id:'upgs',icon:'⚡',name:'Ingénieur en chef',stat:'upgradesBought',tiers:[{t:1,r:300,l:'1 amélioration'},{t:3,r:1000,l:'3'},{t:6,r:5000,l:'6'},{t:10,r:20000,l:'10'},{t:13,r:100000,l:'Toutes !'}]},
+  {id:'heli',icon:'🚁',name:'As du ciel',stat:'helis',tiers:[{t:1,r:8000,l:'Hélicoptère acheté'}]},
+  {id:'exp',icon:'🌍',name:'Commerce mondial',stat:'exports',tiers:[{t:1,r:5000,l:'Export lancé'}]},
+  {id:'bank',icon:'🏦',name:'Banquier forestier',stat:'banks',tiers:[{t:1,r:500000,l:'Banque construite'}]},
+  {id:'fnl',icon:'🌳',name:'Garde forestier',stat:'forests',tiers:[{t:1,r:80000,l:'Forêt nationale achetée'}]},
+  {id:'qcount',icon:'🏅',name:'Chasseur de quêtes',stat:'questTiers',tiers:[{t:5,r:1000,l:'5 quêtes'},{t:15,r:10000,l:'15'},{t:30,r:100000,l:'30'},{t:50,r:1000000,l:'50'},{t:80,r:10000000,l:'80 quêtes !'}]},
+];
+
+const EMPIRE_DEF=[
+  {id:'e_lj',icon:'🧑‍🌾',name:'Bûcherons embauchés',k:'ljHired'},
+  {id:'e_mill',icon:'🏭',name:'Scierie construite',k:'mills'},
+  {id:'e_truck',icon:'🚚',name:'Camion acheté',k:'trucks'},
+  {id:'e_factory',icon:'🏗️',name:'Usine de meubles',k:'factories'},
+  {id:'e_export',icon:'🌍',name:'Export international',k:'exports'},
+  {id:'e_heli',icon:'🚁',name:'Hélicoptère',k:'helis'},
+  {id:'e_forest',icon:'🌳',name:'Forêt nationale',k:'forests'},
+  {id:'e_bank',icon:'🏦',name:'Banque forestière',k:'banks'},
+  {id:'e_all5',icon:'🌲',name:'5 arbres simultanés',k:'maxTrees'},
+];
+
+function DS(){return{money:0,wood:0,woodPrice:1,lumberjacks:1,mills:0,trucks:0,factories:0,exports:0,helis:0,forests:0,banks:0,ljHired:0,activeTreeCount:2,treeHP:[3,3,0,0,0],treeAlive:[true,true,false,false,false],upgrades:{axe:false,axe2:false,axe3:false,regen:false,regen2:false,regen3:false,bulk:false,bulk2:false,offline:false,offline2:false,golden:false,golden2:false,multi:false},prestige:0,totalEarned:0,totalSpent:0,woodSold:0,treesFelled:0,manualClicks:0,upgradesBought:0,questTiers:0,maxTrees:0,tiersDone:{},lastSeen:Date.now()}}
+
+let S;
+try{const r=localStorage.getItem('lt_v6');S=r?Object.assign(DS(),JSON.parse(r)):DS();}catch(e){S=DS();}
+// Ensure arrays correct length
+while(S.treeHP.length<MAX_TREES)S.treeHP.push(0);
+while(S.treeAlive.length<MAX_TREES)S.treeAlive.push(false);
+
+function saveG(){try{localStorage.setItem('lt_v6',JSON.stringify(S));}catch(e){}}
+function loadLB(){try{return JSON.parse(localStorage.getItem('lt_lb6')||'[]');}catch(e){return[];}}
+function saveLB(lb){try{localStorage.setItem('lt_lb6',JSON.stringify(lb));}catch(e){}}
+
+const ge=id=>document.getElementById(id);
+function fm(n){if(n>=1e12)return(n/1e12).toFixed(2)+'T€';if(n>=1e9)return(n/1e9).toFixed(2)+'G€';if(n>=1e6)return(n/1e6).toFixed(2)+'M€';if(n>=1e3)return(n/1e3).toFixed(1)+'k€';return Math.floor(n)+'€';}
+function chopD(){return S.upgrades.axe3?8:S.upgrades.axe2?4:S.upgrades.axe?2:1;}
+function regMs(){if(S.upgrades.regen3)return 300;let r=BASE_REGROW;if(S.upgrades.regen2)r/=4;else if(S.upgrades.regen)r/=2;return r;}
+function pBonus(){return 1+S.prestige*0.25;}
+function ljCost(){return Math.floor(50*Math.pow(1.35,S.lumberjacks-1));}
+function mCost(){return Math.floor(200*Math.pow(1.6,S.mills));}
+function sellMult(){let m=1;if(S.upgrades.bulk)m*=1.5;if(S.upgrades.bulk2)m*=2;return m;}
+function autoSpd(){return S.upgrades.multi?1000:2000;}
+function perSec(){const a=Math.max(0,S.lumberjacks-1+(S.helis>0?2:0));return(a*(1000/autoSpd())*chopD()/BASE_HP)*S.woodPrice*pBonus()*sellMult();}
+
+let toastT=null;
+function toast(m){const t=ge('toast');t.textContent=m;t.classList.add('show');if(toastT)clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
+function setLog(m){ge('logbar').textContent=m;}
+
+// ── SVG TREE RENDERING ─────────────────────────────────────
+function setTreeVisible(i,v){
+  const g=ge('tree'+i);if(g)g.setAttribute('visibility',v?'visible':'hidden');
+  const tap=ge('tap'+i);if(tap)tap.setAttribute('visibility',v?'visible':'hidden');
+}
+function setTreeHP(i,hp){
+  const el=ge('hp'+i);if(!el)return;
+  const w=Math.max(0,Math.round((hp/BASE_HP)*32));
+  el.setAttribute('width',w);
+}
+function setTreeFelled(i){
+  const g=ge('tree'+i);if(!g)return;
+  // Replace crown with stump emoji text
+  const crown=ge('crown'+i);if(crown)crown.setAttribute('points',`${TXPOS[i]},88 ${TXPOS[i]-2},88 ${TXPOS[i]+2},88`);
+  const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+  txt.setAttribute('x',TXPOS[i]-10);txt.setAttribute('y',108);
+  txt.setAttribute('font-size','20');txt.setAttribute('id','stump'+i);txt.textContent='🪵';
+  ge('floats').appendChild(txt);
+}
+function restoreTree(i){
+  const s=ge('stump'+i);if(s)s.remove();
+  const crown=ge('crown'+i);
+  if(crown){
+    const pts=`${TXPOS[i]},40 ${TXPOS[i]-20},90 ${TXPOS[i]+20},90`;
+    crown.setAttribute('points',pts);
+  }
+  setTreeHP(i,BASE_HP);
+}
+function svgFloat(i,txt){
+  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',TXPOS[i]-10);t.setAttribute('y',70);
+  t.setAttribute('font-size','14');t.setAttribute('fill','white');
+  t.setAttribute('font-weight','bold');
+  t.style.cssText='text-shadow:0 1px 3px rgba(0,0,0,.7)';
+  t.textContent=txt;
+  ge('floats').appendChild(t);
+  let y=70,op=1;
+  const anim=setInterval(()=>{y-=2;op-=0.07;t.setAttribute('y',y);t.setAttribute('opacity',op);if(op<=0){clearInterval(anim);t.remove();}},50);
+}
+function moveLJ(i){
+  const lj=ge('lj-svg');if(lj)lj.setAttribute('x',TXPOS[i]-14);
+}
+
+// ── TREE LOGIC ─────────────────────────────────────────────
+function tapTree(i){
+  if(i>=S.activeTreeCount||!S.treeAlive[i])return;
+  moveLJ(i);
+  S.treeHP[i]=Math.max(0,S.treeHP[i]-chopD());
+  setTreeHP(i,S.treeHP[i]);
+  if(S.treeHP[i]<=0){fellTree(i);}
+  else{setLog('🪓 Encore '+(Math.ceil(S.treeHP[i]/chopD()))+' coup(s)...');}
+  S.manualClicks++;
+  checkQuests();updateHUD();saveG();
+}
+function fellTree(i){
+  S.treeAlive[i]=false;
+  let g=1;
+  if(S.upgrades.golden2&&Math.random()<.1)g=20;
+  else if(S.upgrades.golden&&Math.random()<.05)g=10;
+  S.wood+=g;S.treesFelled++;
+  svgFloat(i,'+'+g+'🪵'+(g>=10?' ✨':''));
+  setTreeFelled(i);
+  setTimeout(()=>{
+    S.treeHP[i]=BASE_HP;S.treeAlive[i]=true;
+    restoreTree(i);
+  },regMs());
+}
+function autoChopOne(){
+  for(let i=0;i<S.activeTreeCount;i++){if(S.treeAlive[i]){fellTree(i);return;}}
+}
+
+// ── SELL ────────────────────────────────────────────────────
+
+function chopAll(){
+  let chopped=false;
+  for(let i=0;i<S.activeTreeCount;i++){
+    if(S.treeAlive[i]){
+      S.treeHP[i]=Math.max(0,S.treeHP[i]-chopD());
+      setTreeHP(i,S.treeHP[i]);
+      if(S.treeHP[i]<=0)fellTree(i);
+      chopped=true;
+      break;
+    }
+  }
+  if(chopped){S.manualClicks++;checkQuests();updateHUD();saveG();}
+}
+
+function sellWood(){
+  if(!S.wood){setLog('Pas de bois !');return;}
+  let e=Math.floor(S.wood*S.woodPrice*pBonus()*sellMult());
+  S.money+=e;S.totalEarned+=e;S.woodSold+=S.wood;S.wood=0;
+  setLog('💰 Vendu ! +'+fm(e));
+  checkQuests();updateHUD();saveG();
+}
+
+// ── BUY ─────────────────────────────────────────────────────
+function spend(n){S.money-=n;S.totalSpent+=n;}
+function buy(type){
+  if(type==='tree'){
+    if(S.money<20||S.activeTreeCount>=MAX_TREES)return;
+    spend(20);
+    const i=S.activeTreeCount;
+    S.treeHP[i]=BASE_HP;S.treeAlive[i]=true;S.activeTreeCount++;
+    if(S.activeTreeCount>S.maxTrees)S.maxTrees=S.activeTreeCount;
+    setTreeVisible(i,true);setTreeHP(i,BASE_HP);
+    setLog('🌲 Arbre planté !');
+  }else if(type==='lj'){
+    const c=ljCost();if(S.money<c)return;
+    spend(c);S.lumberjacks++;S.ljHired++;
+    setLog('🧑‍🌾 Bûcheron embauché !');
+  }else if(type==='mill'){
+    const c=mCost();if(S.money<c)return;
+    spend(c);S.mills++;S.woodPrice++;
+    setLog('🏭 Scierie ! Prix = '+S.woodPrice+'€/bûche');
+  }else if(type==='truck'){
+    if(S.money<500||S.trucks>0)return;
+    spend(500);S.trucks=1;setLog('🚚 Camion ! Vente auto/10s');
+  }else if(type==='factory'){
+    if(S.money<2000||S.factories>0)return;
+    spend(2000);S.factories=1;S.woodPrice=Math.floor(S.woodPrice*3);
+    setLog('🏗️ Usine ! Prix ×3 → '+S.woodPrice+'€');
+  }else if(type==='export'){
+    if(S.money<10000||S.exports>0)return;
+    spend(10000);S.exports=1;S.woodPrice=Math.floor(S.woodPrice*5);
+    setLog('🌍 Export ! Prix ×5 → '+S.woodPrice+'€');
+  }else if(type==='heli'){
+    if(S.money<50000||S.helis>0)return;
+    spend(50000);S.helis=1;setLog('🚁 Hélicoptère !');
+  }else if(type==='forest'){
+    if(S.money<100000||S.forests>0)return;
+    spend(100000);S.forests=1;
+    while(S.activeTreeCount<MAX_TREES){
+      const i=S.activeTreeCount;
+      S.treeHP[i]=BASE_HP;S.treeAlive[i]=true;S.activeTreeCount++;
+      setTreeVisible(i,true);setTreeHP(i,BASE_HP);
+    }
+    if(S.activeTreeCount>S.maxTrees)S.maxTrees=S.activeTreeCount;
+    setLog('🌳 Forêt nationale ! Tous les arbres !');
+  }else if(type==='bank'){
+    if(S.money<500000||S.banks>0)return;
+    spend(500000);S.banks=1;setLog('🏦 Banque ! +1%/min');
+  }
+  checkQuests();updateHUD();saveG();
+}
+function buyU(key,cost){
+  if(S.money<cost||S.upgrades[key])return;
+  spend(cost);S.upgrades[key]=true;S.upgradesBought++;
+  ge('u-'+key).classList.add('done');ge('bu-'+key).disabled=true;
+  toast('⚡ Amélioration débloquée !');
+  checkQuests();updateHUD();saveG();
+}
+
+// ── QUESTS ──────────────────────────────────────────────────
+function getStat(s){return S[s]||0;}
+function checkQuests(){
+  let ch=false;
+  QTIERS.forEach(q=>{
+    const di=S.tiersDone[q.id]||0;
+    if(di>=q.tiers.length)return;
+    if(getStat(q.stat)>=q.tiers[di].t){
+      S.tiersDone[q.id]=di+1;S.money+=q.tiers[di].r;S.totalEarned+=q.tiers[di].r;S.questTiers++;
+      toast('📋 '+q.name+' — '+q.tiers[di].l+' ! +'+fm(q.tiers[di].r));ch=true;
+    }
+  });
+  if(ch){updateHUD();renderQuests();}
+}
+function renderQuests(){
+  const el=ge('qlist');if(!el)return;el.innerHTML='';let pend=0;
+  QTIERS.forEach(q=>{
+    const di=S.tiersDone[q.id]||0,allDone=di>=q.tiers.length;
+    if(!allDone){
+      const tier=q.tiers[di],val=Math.min(getStat(q.stat),tier.t),pct=Math.round(val/tier.t*100);pend++;
+      const row=document.createElement('div');row.className='qrow';
+      row.innerHTML=`<div style="font-size:22px;flex-shrink:0;margin-top:2px">${q.icon}</div><div style="flex:1"><div class="sn">${q.name} <span style="font-size:10px;color:#7A6A40">(${di}/${q.tiers.length})</span></div><div style="font-size:11px;color:#7A6A40">${tier.l}</div><div class="qpbar"><div class="qpfill" style="width:${pct}%"></div></div><div style="font-size:10px;color:#7A6A40;margin-top:2px">${fm(val)} / ${fm(tier.t)}</div></div><div style="font-size:11px;font-weight:800;color:#F5A623;flex-shrink:0;margin-top:3px">+${fm(tier.r)}</div>`;
+      el.appendChild(row);
+    }else{
+      const row=document.createElement('div');row.className='qrow qdone';
+      row.innerHTML=`<div style="font-size:22px;flex-shrink:0">${q.icon}</div><div style="flex:1"><div class="sn">${q.name}</div><div style="font-size:11px;color:#4CAF50;font-weight:700">Toutes les étapes complétées !</div></div><div style="font-size:20px">✅</div>`;
+      el.appendChild(row);
+    }
+  });
+  const tab=ge('tab-q');if(tab)tab.innerHTML='📋 Quêtes'+(pend>0?` <span class="nb">${pend}</span>`:'');
+}
+
+// ── EMPIRE ──────────────────────────────────────────────────
+function renderEmpire(){
+  const checks={e_lj:S.ljHired>0,e_mill:S.mills>0,e_truck:S.trucks>0,e_factory:S.factories>0,e_export:S.exports>0,e_heli:S.helis>0,e_forest:S.forests>0,e_bank:S.banks>0,e_all5:S.maxTrees>=5};
+  const tot=EMPIRE_DEF.length,done=EMPIRE_DEF.filter(d=>checks[d.id]).length,pct=Math.round(done/tot*100);
+  ge('epct').textContent=pct+'%';ge('epfill').style.width=pct+'%';ge('esub').textContent=done+' / '+tot+' objectifs';
+  const el=ge('elist');if(!el)return;el.innerHTML='';
+  EMPIRE_DEF.forEach(d=>{
+    const u=checks[d.id];const row=document.createElement('div');row.className='erow'+(u?' eu':'');
+    row.innerHTML=`<div style="font-size:24px;flex-shrink:0">${d.icon}</div><div style="flex:1"><div class="sn">${d.name}</div></div><div style="font-size:22px">${u?'✅':'🔒'}</div>`;
+    el.appendChild(row);
+  });
+  if(done===tot&&!S._gt){S._gt=true;toast('🏆 GRAND TYCOON ! Empire complet !');}
+}
+
+// ── LEADERBOARD ─────────────────────────────────────────────
+function renderLB(){
+  const lb=loadLB();const el=ge('lblist');if(!el)return;el.innerHTML='';
+  if(!lb.length){el.innerHTML='<div style="text-align:center;color:#7A6A40;font-size:12px;padding:12px">Pas encore de scores !</div>';return;}
+  [...lb].sort((a,b)=>b.score-a.score).slice(0,10).forEach((e,i)=>{
+    const row=document.createElement('div');row.className='lbrow';
+    const rc=i===0?'g':i===1?'s':i===2?'b':'';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    row.innerHTML=`<div style="font-size:18px;font-weight:800;color:${i===0?'#F5A623':i===1?'#9E9E9E':i===2?'#A0603A':'#7A6A40'};width:26px;text-align:center;flex-shrink:0">${medal}</div><div style="flex:1;font-size:13px;font-weight:${e.you?800:700};color:${e.you?'#2D5A1B':'#3A2A10'}">${e.name}${e.you?' (toi)':''}</div><div style="font-size:12px;font-weight:800;color:#7A6A40">${fm(e.score)}</div>`;
+    el.appendChild(row);
+  });
+}
+function submitLB(){
+  const inp=ge('lbname');const name=(inp.value||'').trim();
+  if(!name){toast('Entre ton pseudo !');return;}
+  const lb=loadLB().map(e=>({...e,you:false}));
+  const i=lb.findIndex(e=>e.name===name);
+  const entry={name,score:S.totalEarned,you:true};
+  if(i>=0){if(S.totalEarned>lb[i].score)lb[i]=entry;}else lb.push(entry);
+  saveLB(lb);renderLB();toast('🏆 Score soumis : '+fm(S.totalEarned));inp.value='';
+}
+
+// ── PRESTIGE ────────────────────────────────────────────────
+function doPrestige(){
+  if(S.totalEarned<50000)return;
+  if(!confirm('Recommencer avec +25% permanent ?'))return;
+  const p=S.prestige+1,td=S.tiersDone;
+  S=DS();S.prestige=p;S.tiersDone=td;
+  // Reset SVG trees
+  for(let i=0;i<MAX_TREES;i++){
+    const s=ge('stump'+i);if(s)s.remove();
+    restoreTree(i);
+    setTreeVisible(i,i<2);
+  }
+  ge('floats').innerHTML='';
+  toast('⭐ Prestige '+p+' ! +'+(p*25)+'%');
+  checkQuests();updateHUD();saveG();
+}
+
+// ── HUD ─────────────────────────────────────────────────────
+function updateHUD(){
+  ge('hm').textContent=fm(S.money);ge('hw').textContent=S.wood;ge('hpr').textContent=S.prestige;
+  ge('psv').textContent=fm(parseFloat(perSec().toFixed(2)))+'/s';
+  ge('selld').textContent=S.wood+' bûches × '+S.woodPrice+'€';
+  ge('te').textContent=fm(S.totalEarned);ge('pcnt').textContent='×'+S.prestige;ge('pbon').textContent='+'+(S.prestige*25)+'%';
+  ge('b-tree').disabled=S.money<20||S.activeTreeCount>=MAX_TREES;ge('b-tree').textContent='20€';
+  ge('b-lj').disabled=S.money<ljCost();ge('b-lj').textContent=fm(ljCost());
+  ge('d-lj').textContent='Coupe auto • '+fm(ljCost())+' ('+S.lumberjacks+' actifs)';
+  ge('b-mill').disabled=S.money<mCost();ge('b-mill').textContent=fm(mCost());
+  ge('d-mill').textContent='+1€/bûche • '+fm(mCost())+' ('+S.mills+')';
+  ge('b-truck').disabled=S.money<500||S.trucks>0;ge('b-truck').textContent=S.trucks>0?'✓':'500€';
+  ge('b-factory').disabled=S.money<2000||S.factories>0;ge('b-factory').textContent=S.factories>0?'✓':'2 000€';
+  ge('b-export').disabled=S.money<10000||S.exports>0;ge('b-export').textContent=S.exports>0?'✓':'10 000€';
+  ge('b-heli').disabled=S.money<50000||S.helis>0;ge('b-heli').textContent=S.helis>0?'✓':'50 000€';
+  ge('b-forest').disabled=S.money<100000||S.forests>0||S.activeTreeCount>=MAX_TREES;ge('b-forest').textContent=S.forests>0?'✓':'100 000€';
+  ge('b-bank').disabled=S.money<500000||S.banks>0;ge('b-bank').textContent=S.banks>0?'✓':'500 000€';
+  ge('b-prestige').disabled=S.totalEarned<50000;
+  const UC={axe:150,axe2:800,axe3:8000,regen:300,regen2:1500,regen3:50000,bulk:600,bulk2:5000,offline:1000,offline2:20000,golden:5000,golden2:100000,multi:10000};
+  Object.keys(UC).forEach(k=>{const b=ge('bu-'+k);if(b)b.disabled=S.money<UC[k]||S.upgrades[k];});
+  ge('bu-axe2').disabled=S.money<800||S.upgrades.axe2||!S.upgrades.axe;
+  ge('bu-axe3').disabled=S.money<8000||S.upgrades.axe3||!S.upgrades.axe2;
+  ge('bu-regen2').disabled=S.money<1500||S.upgrades.regen2||!S.upgrades.regen;
+  ge('bu-regen3').disabled=S.money<50000||S.upgrades.regen3||!S.upgrades.regen2;
+  ge('bu-bulk2').disabled=S.money<5000||S.upgrades.bulk2||!S.upgrades.bulk;
+  ge('bu-offline2').disabled=S.money<20000||S.upgrades.offline2||!S.upgrades.offline;
+  ge('bu-golden2').disabled=S.money<100000||S.upgrades.golden2||!S.upgrades.golden;
+  renderEmpire();
+}
+
+function ST(n){
+  const names=['shop','upgrades','quests','empire','prestige'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',names[i]===n));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='panel-'+n));
+  if(n==='quests')renderQuests();if(n==='prestige')renderLB();
+}
+
+// ── INIT ────────────────────────────────────────────────────
+// Restore tree state from save
+for(let i=0;i<MAX_TREES;i++){
+  setTreeVisible(i,i<S.activeTreeCount);
+  if(i<S.activeTreeCount){
+    setTreeHP(i,S.treeHP[i]||BASE_HP);
+    if(!S.treeAlive[i])setTreeFelled(i);
+  }
+}
+
+// Offline gains
+(function(){
+  const now=Date.now(),el=(now-(S.lastSeen||now))/1000;S.lastSeen=now;
+  if(el>=15){const ps=perSec();if(ps>0){
+    let g=Math.floor(ps*el);if(S.upgrades.offline2)g*=4;else if(S.upgrades.offline)g*=2;
+    if(g>0){S.money+=g;S.totalEarned+=g;const b=ge('offb');b.style.display='block';
+      const m=Math.floor(el/60);b.textContent='💤 Absent '+(m>0?m+'min':Math.floor(el)+'s')+' → +'+fm(g)+' gagnés !';
+      setTimeout(()=>b.style.display='none',5000);}
+  }}
+})();
+
+renderQuests();updateHUD();
+
+// ── GAME LOOP ────────────────────────────────────────────────
+let autoT=0,truckT=0,saveT=0,bankT=0,ljTick=0;
+setInterval(()=>{
+  const a=Math.max(0,S.lumberjacks-1+(S.helis>0?2:0));
+  autoT+=100;truckT+=100;saveT+=100;bankT+=100;
+  if(autoT>=autoSpd()){
+    autoT=0;
+    if(a>0){
+      const alive=[];for(let i=0;i<S.activeTreeCount;i++)if(S.treeAlive[i])alive.push(i);
+      if(alive.length)for(let k=0;k<a;k++){
+        const i=alive[k%alive.length];
+        S.treeHP[i]=Math.max(0,S.treeHP[i]-chopD());
+        setTreeHP(i,S.treeHP[i]);
+        if(S.treeHP[i]<=0)fellTree(i);
+      }
+      checkQuests();updateHUD();
+    }
+  }
+  if(S.trucks>0&&truckT>=10000){truckT=0;if(S.wood>0)sellWood();}
+  if(S.banks>0&&bankT>=60000){bankT=0;const int2=Math.floor(S.money*0.01);if(int2>0){S.money+=int2;S.totalEarned+=int2;checkQuests();updateHUD();}}
+  if(saveT>=3000){saveT=0;S.lastSeen=Date.now();saveG();}
+},100);
+
+setInterval(()=>{
+  const alive=[];for(let i=0;i<S.activeTreeCount;i++)if(S.treeAlive[i])alive.push(i);
+  if(alive.length&&S.lumberjacks>1){moveLJ(alive[ljTick%alive.length]);ljTick++;}
+},2000);
+</script>
+</body>
+</html>
